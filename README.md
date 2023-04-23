@@ -6,7 +6,7 @@ The getNLR-pairs pipeline is a rapid, user-friendly, and precise method to detec
 
 ### [Mamba](https://github.com/mamba-org/mamba)
 
-We recommend utilizing [mamba](https://github.com/conda-forge/miniforge#mambaforge)for the installation and management of the necessary software. Execute the following code to install Mamba:
+We recommend utilizing [mamba](https://github.com/conda-forge/miniforge#mambaforge) for the installation and management of the necessary software. Type the following code to install Mamba:
 
 ````sh
 wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
@@ -41,7 +41,7 @@ git clone https://github.com/steuernb/NLR-Annotator.git
 
 ## Installation
 
-Just download our repository getNLR-pairs.
+Just clone our thie repository :
 
 ````sh
 git clone https://github.com/lixiang117423/getNLR-pairs.git
@@ -96,7 +96,7 @@ sed '/^#/d' nlr.annotator.all.cds.res.txt | awk {'print $1'} | uniq > nlr.annota
 
 ### Annotate NLR loci  of the two methods' results
 
-Loci annotation of NB-ARC domain predicted by HMMER with [NLR-Annotator](https://github.com/steuernb/NLR-Annotator).
+Loci annotation of NB-ARC domain predicted by HMMER and  NLR-Annotator with [NLR-Annotator](https://github.com/steuernb/NLR-Annotator).
 
 ````sh
 # merge all IDs
