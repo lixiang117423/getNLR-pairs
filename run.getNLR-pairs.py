@@ -38,7 +38,7 @@ def check_files_and_extract_seq(sample_file):
                 # print("gffread " + gffread_comm)
 
                 # 提取转录本和基因信息
-                gene_location = f"python script/getGeneLocation.py -g {input_folder}/{sample}.gff -o {output_folder}/{sample}.gene.info.txt"
+                gene_location = f"python3 script/getGeneLocation.py -g {input_folder}/{sample}.gff -o {output_folder}/{sample}.gene.info.txt"
                 os.system(gene_location)
 
                 # HMMEr鉴定结构域
@@ -62,8 +62,8 @@ def check_files_and_extract_seq(sample_file):
                 os.system(mergeid_comm)
                 
                 # extract CDS
-                getcds_comm = f"python script/getseq.py -i {output_folder}/{sample}.candidate.id.txt -f {output_folder}/{sample}.cds -o {output_folder}/{sample}.all.candidate.cds.fa"
-
+                getcds_comm = f"python3 script/getseq.py -i {output_folder}/{sample}.candidate.id.txt -f {output_folder}/{sample}.cds -o {output_folder}/{sample}.all.candidate.cds.fa"
+                os.system(getcds_comm)
                 # run NLR-Annotator
                 anno_comm = f"java -jar ./NLR-Annotator/NLR-Annotator-v2.1b.jar -x ./NLR-Annotator/src/mot.txt -y ./NLR-Annotator/src/store.txt -i {output_folder}/{sample}.all.candidate.cds.fa -g {output_folder}/{sample}.res.gff -t 10"
                 os.system(anno_comm)
