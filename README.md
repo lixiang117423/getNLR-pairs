@@ -2,22 +2,6 @@
 
 The getNLR-pairs pipeline is a rapid, user-friendly, and precise method to detect NLR-pairs in plant genomes.
 
-## 软件
-
-
-## 用法
-
-数据文件夹
-
-样品列表
-
-
-从样品名称中依次读取样品名称
-
-
-
-
-
 ## Prerequisites
 
 ### [Mamba](https://github.com/mamba-org/mamba)
@@ -49,7 +33,7 @@ mamba install -c bioconda hmmer
 
 ### [NLR-Annotator](https://github.com/steuernb/NLR-Annotator)
 
-NLR-Annotator is a tool to annotate loci associated with NLRs.
+NLR-Annotator is a tool to annotate loci associated with NLRs. **Note: NLR-Annotator needs to be in the same folder as the project.**
 
 ```sh
 git clone https://github.com/steuernb/NLR-Annotator.git
@@ -65,71 +49,67 @@ git clone https://github.com/lixiang117423/getNLR-pairs.git
 
 ## Running
 
-### Parse gene and mRNA information from GFF file
+### Preparing example data
 
-Given that a single gene may exhibit multiple transcript variants, our initial step was to extract the positional information of each transcript variant from the GFF file. This information included the respective ID, chromosome, start and end positions, as well as the strands.
-
-````sh
-python getGeneLocation.py -g test.gff -o gene.info.txt   
-````
+We used the wheat, maize and rice genomes from the [Ensembl Plants](https://plants.ensembl.org/index.html)database repository as example data.
 
 ````sh
-gene.id Chr     gene.start      gene.end        gene.strand     mRNA.id mRNA.start      mRNA.end
-gene:Os01g0100100       1_wrky.20       2983    10815   +       transcript:Os01t0100100-01      2983    10815
-gene:Os01g0100200       1_wrky.20       11218   12435   +       transcript:Os01t0100200-01      11218   12435
-gene:Os01g0100300       1_wrky.20       11372   12284   -       transcript:Os01t0100300-00      11372   12284
-gene:Os01g0100400       1_wrky.20       12721   15685   +       transcript:Os01t0100400-01      12721   15685
-gene:Os01g0100466       1_wrky.20       12808   13978   -       transcript:Os01t0100466-00      12808   13978
-gene:Os01g0100500       1_wrky.20       16399   20144   +       transcript:Os01t0100500-01      16399   20144
-gene:Os01g0100600       1_wrky.20       22841   26892   +       transcript:Os01t0100600-01      22841   26892
-gene:Os01g0100650       1_wrky.20       25861   26424   -       transcript:Os01t0100650-00      25861   26424
-gene:Os01g0100700       1_wrky.20       27143   28644   +       transcript:Os01t0100700-01      27143   28644
+# create folder
+mkdir example
+
+# doanload the example data
+wget https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-56/fasta/triticum_aestivum/dna/Triticum_aestivum.IWGSC.dna.toplevel.fa.gz -O ./example/wheat.fa.gz
+wget https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-56/gff3/triticum_aestivum/Triticum_aestivum.IWGSC.56.gff3.gz -O ./example/wheat.gff.gz
+
+wget https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-56/fasta/zea_mays/dna/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.dna.toplevel.fa.gz -O ./example/maize.fa.gz
+wget https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-56/gff3/zea_mays/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.56.gff3.gz -O ./example/maize.gff.gz
+
+wget https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-56/fasta/oryza_sativa/dna/Oryza_sativa.IRGSP-1.0.dna.toplevel.fa.gz -O ./example/rice.fa.gz
+wget https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-56/gff3/oryza_sativa/Oryza_sativa.IRGSP-1.0.56.gff3.gz -O ./example/rice.gff.gz
+
+# Decompress all files
+gunzip ./example/*.gz
 ````
 
-### Predict NB-ARC domain using HMMER
+### Preparing  sample list
 
-```sh
-hmmsearch --cpu 2 --domtblout hmmsearch.res.txt --cut_tc PF00931.hmm test.pep 
+Enter the prefixes of the above files into sample.list, e.g:
+
+````
+vi sample.list.example
+
+rice
+maize
+wheat
+````
+
+### Run getNLRpairs
+
+````sh
+python3 run.getNLR-pairs.py -i example -s sample.list.example -o result
+````
+
+Meaning of each parameter:
+
+- i: Folder containing genome and annotation files.
+- s: sample.list.
+- -o: This is the folder where temporary files are stored and will be deleted when the program is finished.
+
+When the run is complete, a result file is generated in the current directory, such as `wheat.nlr.pairs.txt`:
+
+```
+gene.1  gene.2  chr.1   chr.2   start.1 start.2 end.1   end.2   strand.1        strand.2
+gene:TraesCSU02G244700  gene:TraesCSU02G244800  Un_328  Un_328  367843085       367883403       367844098       367884368       +       -
+gene:TraesCSU02G232800  gene:TraesCSU02G232900  Un_328  Un_328  344888847       345034816       344890891       345035865       +       +
+gene:TraesCSU02G224800  gene:TraesCSU02G225000  Un_328  Un_328  331470513       331543914       331471370       331545378       -       +
+gene:TraesCSU02G205200  gene:TraesCSU02G205300  Un_328  Un_328  305404604       305533325       305407847       305534248       +       -
+gene:TraesCSU02G203600  gene:TraesCSU02G203800  Un_328  Un_328  303068051       303377185       303070317       303378502       -       +
+gene:TraesCSU02G196500  gene:TraesCSU02G196800  Un_328  Un_328  294162942       294373659       294166815       294375605       +       +
+gene:TraesCSU02G171700  gene:TraesCSU02G172000  Un_328  Un_328  253065268       253482556       253071297       253488689       -       +
+gene:TraesCSU02G168100  gene:TraesCSU02G168400  Un_328  Un_328  246505692       247570454       246508354       247574434       +       -
+gene:TraesCSU02G135400  gene:TraesCSU02G135500  Un_328  Un_328  117147569       117293768       117152623       117300952       +       -
 ```
 
-Extract protein sequence IDs and remove duplicate IDs.
+## Contact
 
-````sh
-sed '/^#/d' hmmsearch.res.txt | awk {'print $1'} | uniq > unique.hmmsearch.id.txt
-````
-
-### Annotate all CDS using [NLR-Annotator](https://github.com/steuernb/NLR-Annotator)
-
-Upon performing a comparative analysis, we observed that including the entire genome coding sequence (CDS) as input in NLR-Annotator generated a greater number of NLRs. Therefore, we suggest employing the complete genome CDS to identify NLRs subsequent to HMMER analysis. We then recommend combining the outputs of both methods for the final results.
-
-```sh
-java -jar ~/NLR-Annotator/NLR-Annotator-v2.1b.jar -x ~/NLR-Annotator/src/mot.txt -y ~/NLR-Annotator/src/store.txt -i test.cds -g nlr.annotator.all.cds.res.txt -t 50
-
-sed '/^#/d' nlr.annotator.all.cds.res.txt | awk {'print $1'} | uniq > nlr.annotator.all.cds.res.id.txt 
-```
-
-### Annotate NLR loci  of the two methods' results
-
-Loci annotation of NB-ARC domain predicted by HMMER and  NLR-Annotator with [NLR-Annotator](https://github.com/steuernb/NLR-Annotator).
-
-> Note: We observed that some of the results generated by HMMER, which were not identified as NB-ARC domains by NLR-Annotator, were indeed NB-ARC domains upon subsequent detection via [NCBI-CDD](https://www.ncbi.nlm.nih.gov/Structure/bwrpsb/bwrpsb.cgi). Thus, we recommend retaining such HMMER-derived output outcomes for further examination with [NCBI-CDD](https://www.ncbi.nlm.nih.gov/Structure/bwrpsb/bwrpsb.cgi) as a validation step.
-
-````sh
-# merge all IDs
-cat unique.hmmsearch.id.txt nlr.annotator.all.cds.res.id.txt | uniq > all.candidate.id.txt
-
-# extract CDS
-python getseq.py -i all.candidate.id.txt -f test.cds -o all.candidate.cds.fa
-
-# run NLR-Annotator
-java -jar ~/NLR-Annotator/NLR-Annotator-v2.1b.jar -x ~/NLR-Annotator/src/mot.txt -y ~/NLR-Annotator/src/store.txt -i all.candidate.cds.fa -g nlr.annotator.res.gff -t 10
-
-# parse unique ID
-sed '/^#/d' nlr.annotator.res.gff | awk {'print $1'} | uniq > nlr.annotator.res.id.txt     
-````
-
-### getNLRpairs
-
-```sh
-Rscript getNLRpairs.R gene.info.txt all.candidate.id.txt nlr.pairs.txt
-```
+Xiang LI: lixiang117423@gmail.com
